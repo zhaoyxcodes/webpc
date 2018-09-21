@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="pc"
+  id="myeclipse.1517475797603"
+  context-root="/pc"
+  j2ee-spec="6.0"
+  archive="pc.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+
