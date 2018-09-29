@@ -63,9 +63,9 @@ public class CarService {
 		}
 		curr.set(Calendar.HOUR_OF_DAY,hourobj);
 		curr.set(Calendar.MINUTE,timeobj*5);
-		String insql="insert into Reservation(id,line_id,user_id,start,end,gatherstart,downend,offer,phone,everyday,startdate,remark)values('"+re_id
+		String insql="insert into Reservation(id,line_id,user_id,start,end,gatherstart,downend,offer,phone,everyday,startdate,remark,endtitle,starttitle)values('"+re_id
 		+"','"+object.getString("line_id")+"','"+userid+"',geomfromtext('"+object.getString("start")+"'),geomfromtext('"+object.getString("end")+"'),geomfromtext('" +
-		object.getString("gatherstart")+"'),geomfromtext('"+object.getString("downend")+"'),'"+object.getString("offer")+"','"+object.getString("phone")+"',"+everyday+",'"+sdf.format(curr.getTime())+"','"+object.getString("remark")+"')";
+		object.getString("gatherstart")+"'),geomfromtext('"+object.getString("downend")+"'),'"+object.getString("offer")+"','"+object.getString("phone")+"',"+everyday+",'"+sdf.format(curr.getTime())+"','"+object.getString("remark")+"','"+object.getString("endtitle")+"','"+object.getString("starttitle")+"')";
 		int num= jdbcDao.update(insql);
 		if(num>0){
 			HmacUtil.sendModel(modelobject);

@@ -43,15 +43,14 @@ import com.system.core.util.ResponseValue;
 public class LoginService {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LoginService.class);
-	private static final String APPID = "wx606ec8b416c01260";
-	private static final String SECRET = "6ab7b322f7dcd0d2b8191ce616e35198";
+	
 	@Autowired
 	private LoginDao loginDao;
 
 	@Transactional
 	public String get3drSessionKey(String code, String name, String img) {
 		String url = "https://api.weixin.qq.com/sns/jscode2session?appid="
-				+ APPID + "&secret=" + SECRET + "&js_code=" + code
+				+ HmacUtil.APPID + "&secret=" + HmacUtil.SECRET + "&js_code=" + code
 				+ "&grant_type=authorization_code";
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> responseEntity = restTemplate.exchange(url,
