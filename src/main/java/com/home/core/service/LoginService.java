@@ -9,6 +9,9 @@
 
 package com.home.core.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.home.core.dao.JdbcDao;
 import com.home.core.dao.LoginDao;
 import com.home.core.entity.User;
 import com.system.core.util.HmacUtil;
@@ -43,14 +47,24 @@ import com.system.core.util.ResponseValue;
 public class LoginService {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LoginService.class);
-	
+	@Autowired
+	private JdbcDao jdbcDao;
 	@Autowired
 	private LoginDao loginDao;
 
+	public Map<String, Object>  queryuser(String id){
+		String querysql="select * from user where  `id`='"+id+"'";
+		List<Map<String, Object>> list=jdbcDao.queryForList(querysql);
+		if(list!=null&&list.size()>0){
+			return list.get(0);
+		}
+		return null;
+	}
+	
 	@Transactional
-	public String get3drSessionKey(String code, String name, String img) {
+	public String get3drSessionKey(String code, String name, String img,String secret) {
 		String url = "https://api.weixin.qq.com/sns/jscode2session?appid="
-				+ HmacUtil.APPID + "&secret=" + HmacUtil.SECRET + "&js_code=" + code
+				+ HmacUtil.APPID + "&secret=" + secret + "&js_code=" + code
 				+ "&grant_type=authorization_code";
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> responseEntity = restTemplate.exchange(url,
@@ -58,6 +72,8 @@ public class LoginService {
 		if (responseEntity != null
 				&& responseEntity.getStatusCode() == HttpStatus.OK) {
 			String sessionData = responseEntity.getBody();
+			System.out.println(sessionData);
+			logger.info(sessionData);
 			JSONObject jsonObj = JSON.parseObject(sessionData);
 			String openId = jsonObj.getString(ResponseValue.USER_OPENID);
 			String sessionKey = jsonObj
@@ -81,7 +97,8 @@ public class LoginService {
 					+ user.getUsername() + "\",\"" + ResponseValue.USER_IMG
 					+ "\":\"" + user.getImg() + "\",\"" + ResponseValue.USER_OPENID
 					+ "\":\"" + openId + "\",\"" + ResponseValue.USER_ID
-					+ "\":\"" + user.getId() + "\"}";
+					+ "\":\"" + user.getId() + "\",\"" + ResponseValue.USER_ISADMIN
+					+ "\":\"" + user.getIsadmin() + "\"}";
 
 		}
 		return ResponseValue.IS_ERROR;

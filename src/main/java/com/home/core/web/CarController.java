@@ -58,7 +58,7 @@ public class CarController {
 					|| date_list.size() < 3
 					|| HmacUtil.getStringNull(userobj
 							.getString(ResponseValue.USER_ID))) {
-				System.out.println(" attr is null..");
+				System.out.println(" insertCar is null..");
 			} else {
 
 				carService.insertCar(markers_list, line_list, peplenum, phone,
@@ -79,7 +79,7 @@ public class CarController {
 			JSONArray date_list = JSONArray.parseArray(date);
 			if ( markers_list.size() < 2
 					|| date_list.size() < 3) {
-				System.out.println(" attr is null..");
+				System.out.println(" seachCar is null..");
 			} else {
 				return carService.seachCar( markers_list, date_list, peplenum);
 			}
@@ -93,7 +93,7 @@ public class CarController {
 	public List<Map<String, Object>> getPoint(String lineid) {
 		try{
 			if ( HmacUtil.getStringNull(lineid)) {
-				System.out.println(" lineid is null..");
+				System.out.println(" getPoint is null..");
 			} else {
 				return carService.getPoint(lineid);
 			}
@@ -102,7 +102,34 @@ public class CarController {
 		}
 		return null;
 	}
-	
+	@RequestMapping(value = "/getLineByUser", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Map<String, Object>> getLineByUser(String userid) {
+		try{
+			if ( HmacUtil.getStringNull(userid)) {
+				System.out.println(" getLineByUser is null..");
+			} else {
+				return carService.seachLineByUser(userid);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	@RequestMapping(value = "/getLineById", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Map<String, Object>> getLineById(String lineid) {
+		try{
+			if ( HmacUtil.getStringNull(lineid)) {
+				System.out.println(" getLineById is null..");
+			} else {
+				return carService.seachLineById(lineid);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@RequestMapping(value = "/reservation", method = RequestMethod.POST)
 	@ResponseBody
 	public String  insertReservation(String date,String dataval,String user,String modeldata) {
@@ -114,7 +141,7 @@ public class CarController {
 			//todo:校验dataobj
 			if (  date_list.size() < 3|| HmacUtil.getStringNull(userobj
 					.getString(ResponseValue.USER_ID))) {
-				System.out.println(" lineid is null..");
+				System.out.println(" insertReservation is null..");
 			} else {
 				return carService.insertReservation(dataobj,date_list,userobj.getString(ResponseValue.USER_ID),modelobject);
 			
@@ -124,5 +151,6 @@ public class CarController {
 		}
 		return ResponseValue.IS_ERROR;
 	}
+	
 
 }

@@ -33,7 +33,20 @@ public class RedisUtil {
         //权限认证
 //        jedis.auth("");
     }
-    
+    public static void setToken(String key,String value,int min){
+    	jedis.del(key);
+    	if(min<=0){
+    		min=7200;//2小时
+    	}
+    	jedis.set(key, value);
+    	jedis.expire(key, min);
+    }
+    public static String getToken(String key){
+        return jedis.get(key);
+    }
+    public static void delToken(String key){
+         jedis.del(key);
+    }
     public static String setOpenId(String drSessionId,User user) {
     	jedis.del(drSessionId.getBytes());
         return jedis.set(drSessionId.getBytes(), SerializeUtil.serialize(user));

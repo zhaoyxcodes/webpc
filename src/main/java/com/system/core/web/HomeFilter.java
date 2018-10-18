@@ -46,7 +46,10 @@ public class HomeFilter implements Filter{
 	@Override
 	public void doFilter(ServletRequest arg0, ServletResponse arg1,
 			FilterChain arg2) throws IOException, ServletException {
-		JSONObject userjson=JSONObject.parseObject(arg0.getParameter("user"));
+		String userstr=arg0.getParameter("user");
+		System.out.println(userstr);
+		System.out.println(arg0.getAttribute("user"));
+		JSONObject userjson=JSONObject.parseObject(userstr);
 		if(userjson!=null){
 			if(userjson.getString(ResponseValue.USER_SESSION_KEY).length()>0){
 				arg2.doFilter(arg0, arg1);

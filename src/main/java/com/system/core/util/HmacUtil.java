@@ -56,6 +56,10 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
 public class HmacUtil {
+	//img path
+	public static final String path="//home//img";
+	
+	public static final String tokenKey="tokenKey";
 	//微信支付的商户id
 	public static final String mch_id = "";
 	//微信支付的商户密钥
@@ -69,9 +73,9 @@ public class HmacUtil {
 	
 		
 	public  static final String APPID = "wx606ec8b416c01260";
-	public static final String SECRET = "6ab7b322f7dcd0d2b8191ce616e35198";
+	public static final String SECRET = "6a40c709e9eb56f2881db739ef98ff7a";
 	
-	private static String accesstoken_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx606ec8b416c01260&secret=0f5134082241f9f9dca9c8f397d952f2";
+	private static String accesstoken_url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+APPID+"&secret="+SECRET;
 
 	private static String model_url = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/send?access_token=";
 
@@ -148,6 +152,11 @@ public class HmacUtil {
 
 	// 获取token
 	public static String accessToken() {
+		String tokenval=RedisUtil.getToken(tokenKey);
+		System.out.println(tokenKey+"缓存"+tokenval);
+		if(tokenval!=null&&tokenval.length()>0){
+			return tokenval;
+		}
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> responseEntity = restTemplate.exchange(
 				accesstoken_url, HttpMethod.GET, null, String.class);
@@ -156,7 +165,12 @@ public class HmacUtil {
 			String sessionData = responseEntity.getBody();
 			JSONObject jsonObj = JSON.parseObject(sessionData);
 			String access_token = jsonObj.getString("access_token");
-			System.out.println(access_token);
+			int expires_in = jsonObj.getIntValue("expires_in");
+			
+			if(access_token!=null&&access_token.length()>0&&expires_in>0){
+				RedisUtil.setToken(tokenKey, access_token,expires_in);
+			}
+			System.out.println(access_token+"//"+expires_in);
 			return access_token;
 		}
 		return null;
@@ -165,7 +179,7 @@ public class HmacUtil {
 	// 发送模板
 	public static void sendModel(JSONObject jsonObj) {
 		RestTemplate restTemplate = new RestTemplate();
-		model_url = model_url + accessToken();
+		String model_url2 = model_url + accessToken();
 		HttpHeaders headers = new HttpHeaders();
 		MediaType type = MediaType
 				.parseMediaType("application/json; charset=UTF-8");
@@ -173,9 +187,15 @@ public class HmacUtil {
 		headers.add("Accept", MediaType.APPLICATION_JSON.toString());
 		HttpEntity<String> formEntity = new HttpEntity<String>(
 				jsonObj.toString(), headers);
-		String x = restTemplate.postForEntity(model_url, formEntity,
+		String x = restTemplate.postForEntity(model_url2, formEntity,
 				String.class).getBody();
+		JSONObject jxObj = JSON.parseObject(x);
 		System.out.println(x);
+		if("40001".equals(jxObj.getString("errcode"))||"42001".equals(jxObj.getString("errcode"))){//如果请求失败 重新请求
+			RedisUtil.delToken(tokenKey);
+			sendModel(jsonObj);
+		}
+		
 
 	}
 
@@ -404,7 +424,7 @@ public class HmacUtil {
 	}
 
 	public static boolean getStringNull(Object obj) {
-		if (obj == null || obj.toString().length() <= 0
+		if ("null".equals(obj) ||obj == null || obj.toString().length() <= 0
 				|| obj.toString().isEmpty()) {
 			return true;
 		}

@@ -48,33 +48,62 @@ public class CarService {
 	
 	@Transactional(readOnly = false)
 	public String insertReservation(JSONObject object,JSONArray date_list,String userid,JSONObject modelobject){
+		//校验
+		String queryv="select count(*) as count from reservation t where t.startdate>(select date_add(startdate, interval -1 hour) from  car" +
+				" where id='"+object.getString("carid")+"') and t.startdate<(select date_add(startdate, interval 1 hour) from " +
+				" car where id='"+object.getString("carid")+"') and user_id='"+userid+"' and status not in(0,1)";
+		List<Map<String, Object>> list=jdbcDao.queryForList(queryv);
+		if(list!=null&&list.size()>0){
+			int count=Integer.parseInt(list.get(0).get("count".toUpperCase()).toString());
+			if(count>0){
+				return "1";
+			}
+		}
+		//增加
 		String re_id = HmacUtil.getUUID();
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		Calendar curr = Calendar.getInstance();
 		int everyday=0;
 		int dateobj=date_list.getInteger(0);
 		int hourobj=date_list.getInteger(1);
 		int timeobj=date_list.getInteger(2);
+		curr.set(Calendar.HOUR_OF_DAY,hourobj);
 		if(dateobj==0){//每天
 			everyday=1;
+			if(curr.get(Calendar.HOUR_OF_DAY)>=hourobj){
+				curr.set(Calendar.HOUR_OF_DAY,hourobj+1);
+			}
+			
 		}else{
 			int adddate=dateobj-1;
 			curr.add(Calendar.DAY_OF_MONTH,adddate);
 		}
-		curr.set(Calendar.HOUR_OF_DAY,hourobj);
+		
 		curr.set(Calendar.MINUTE,timeobj*5);
-		String insql="insert into Reservation(id,line_id,user_id,start,end,gatherstart,downend,offer,phone,everyday,startdate,remark,endtitle,starttitle)values('"+re_id
+		String insql="insert into Reservation(downaddress,downmi,startmi,id,line_id,user_id,start,end,gatherstart,downend,offer,phone,everyday,startdate,remark,endtitle,starttitle)values('"+object.getString("downaddress")+"','"+object.getString("downmi")+"','"+object.getString("startmi")+"','"+re_id
 		+"','"+object.getString("line_id")+"','"+userid+"',geomfromtext('"+object.getString("start")+"'),geomfromtext('"+object.getString("end")+"'),geomfromtext('" +
 		object.getString("gatherstart")+"'),geomfromtext('"+object.getString("downend")+"'),'"+object.getString("offer")+"','"+object.getString("phone")+"',"+everyday+",'"+sdf.format(curr.getTime())+"','"+object.getString("remark")+"','"+object.getString("endtitle")+"','"+object.getString("starttitle")+"')";
 		int num= jdbcDao.update(insql);
 		if(num>0){
+			
+			String pagenew=modelobject.getString("page")+re_id;
+			modelobject.put("page", pagenew);
 			HmacUtil.sendModel(modelobject);
-			return ResponseValue.IS_SUCCESS;
+			return re_id;
 		}
 		return ResponseValue.IS_ERROR;
 	}
 	public List<Map<String, Object>> getPoint(String lineid){
 		return jdbcDao.queryForList("select  AsText(geom)as geom from point where  line_id='"+lineid+"' ");
+	}
+	public List<Map<String, Object>> seachLineByUser(String userid){
+		return	jdbcDao.queryForList("select a.*,b.start_title,b.end_title,b.peplenum,b.everyday,DATE_FORMAT(b.startdate,'%Y-%m-%d %H:%i') as sdate from line a,car b where a.car_id=b.id  and b.user_id=? order by a.status desc, b.createdate desc",
+							new String[]{userid});
+	}
+	public List<Map<String, Object>> seachLineById(String lineid){
+		return	jdbcDao.queryForList("select a.*,b.start_title,b.end_title,b.peplenum,b.everyday,DATE_FORMAT(b.startdate,'%Y-%m-%d %H:%i') as sdate,AsText(b.end_geom) as end_geom,AsText(b.start_geom) as start_geom" +
+				",u.img,u.username from user u,line a,car b where a.car_id=b.id and b.user_id=u.id and   a.id=? order by b.createdate desc",
+							new String[]{lineid});
 	}
 	public List<Map<String, Object>> seachCar(JSONArray markers_list,JSONArray date_list,String peplenum){
 		JSONObject startmark=markers_list.getJSONObject(0);
@@ -180,7 +209,9 @@ public class CarService {
 		}
 	}
 	public static void main(String[] args) {
-	
+		Calendar curr = Calendar.getInstance();
+		curr.set(Calendar.HOUR_OF_DAY,15);
+		System.out.println(curr.getTime());
 	}
 
 }

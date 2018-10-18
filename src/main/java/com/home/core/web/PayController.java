@@ -39,7 +39,7 @@ import com.system.core.util.HmacUtil;
 @RequestMapping("/pay")
 public class PayController {
 
-	@RequestMapping(value="/order")    
+	@RequestMapping(value="/pay")    
 	@ResponseBody    
 	public Map<String, Object> pay(HttpServletRequest request,String openid) throws Exception{  
 		return HmacUtil.wxPay(openid,request);

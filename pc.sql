@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50723
 File Encoding         : 65001
 
-Date: 2018-09-29 15:01:42
+Date: 2018-10-12 14:42:23
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -470,29 +470,33 @@ CREATE TABLE `reservation` (
   `id` varchar(255) DEFAULT NULL,
   `line_id` varchar(255) DEFAULT NULL,
   `user_id` varchar(255) DEFAULT NULL,
-  `gatherstart` geometry DEFAULT NULL,
-  `downend` geometry DEFAULT NULL,
-  `end` geometry DEFAULT NULL,
-  `endtitle` varchar(255) DEFAULT NULL,
-  `start` geometry DEFAULT NULL,
-  `starttitle` varchar(255) DEFAULT NULL,
+  `gatherstart` geometry DEFAULT NULL COMMENT '上车点坐标',
+  `downaddress` varchar(255) DEFAULT NULL COMMENT '下车点名称',
+  `startmi` varchar(255) DEFAULT NULL COMMENT '距离上车点',
+  `downmi` varchar(255) DEFAULT NULL COMMENT '下车行走多少米',
+  `downend` geometry DEFAULT NULL COMMENT '下车点坐标',
+  `end` geometry DEFAULT NULL COMMENT '我的终点坐标',
+  `endtitle` varchar(255) DEFAULT NULL COMMENT '我的终点名称',
+  `start` geometry DEFAULT NULL COMMENT '我的起点坐标',
+  `starttitle` varchar(255) DEFAULT NULL COMMENT '我的起点名称',
   `offer` varchar(255) DEFAULT NULL COMMENT '报价',
   `phone` varchar(255) DEFAULT NULL COMMENT '电话',
   `everyday` int(11) DEFAULT '0' COMMENT '1是每天',
-  `startdate` datetime DEFAULT NULL,
+  `startdate` datetime DEFAULT NULL COMMENT '出发时间',
   `remark` varchar(255) DEFAULT NULL,
-  `status` int(11) DEFAULT '0' COMMENT '0无效1已确定',
+  `status` int(11) DEFAULT '0' COMMENT '0预订中1已预订2已完成3乘客取消预约4车主取消预约5乘客删除',
   `createdate` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of reservation
 -- ----------------------------
-INSERT INTO `reservation` VALUES ('c14ad97847b8469ebe0ed0782e26dbb3', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), null, GeomFromText('POINT(108.895903 34.170034)'), null, '5', '18717370370', '1', '2018-09-19 00:00:00', '123', '0', '2018-09-19 17:21:57');
-INSERT INTO `reservation` VALUES ('0d08d65947c34b5ba515fcb328beb3ed', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), null, GeomFromText('POINT(108.895903 34.170034)'), null, '5', '33333', '1', '2018-09-19 00:00:00', 'null', '0', '2018-09-19 17:24:32');
-INSERT INTO `reservation` VALUES ('f10167be41284a179a99109d0b6cf99b', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), null, GeomFromText('POINT(108.895903 34.170034)'), null, '5', '18717', '1', '2018-09-20 00:00:00', '123', '0', '2018-09-20 17:24:19');
-INSERT INTO `reservation` VALUES ('25098e11941e426eb346d69001dff67e', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), null, GeomFromText('POINT(108.895903 34.170034)'), null, '5', '123', '1', '2018-09-20 00:00:00', 'null', '0', '2018-09-20 17:27:07');
-INSERT INTO `reservation` VALUES ('d6e425463f8b46d28fd940b8cbc34656', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), null, GeomFromText('POINT(108.895903 34.170034)'), null, '5', '123', '1', '2018-09-20 00:00:00', '321', '0', '2018-09-20 17:32:01');
+INSERT INTO `reservation` VALUES ('2ffa19fb539641e9b55431207f00519b', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '付村花园东区附近', '384米', '502米', GeomFromText('POINT(108.869232 34.181046)'), GeomFromText('POINT(108.86378 34.18082)'), '雁塔区付村小学-东门', GeomFromText('POINT(108.895903 34.170034)'), '曹家堡公租房小区', '15', '1871737372', '1', '2018-10-11 00:00:00', 'null', '1', '2018-10-11 17:58:04');
+INSERT INTO `reservation` VALUES ('ad518dfb08fd458b8c3a3a1e674410df', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '付村花园东区附近', '384米', '502米', GeomFromText('POINT(108.869232 34.181046)'), GeomFromText('POINT(108.86378 34.18082)'), '雁塔区付村小学-东门', GeomFromText('POINT(108.895903 34.170034)'), '曹家堡公租房小区', '15', '1871737372', '1', '2018-10-11 00:00:00', '123213', '1', '2018-10-11 18:00:39');
+INSERT INTO `reservation` VALUES ('1872a260b5f44453a352850437a02ac8', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '付村花园东区附近', '384米', '502米', GeomFromText('POINT(108.869232 34.181046)'), GeomFromText('POINT(108.86378 34.18082)'), '雁塔区付村小学-东门', GeomFromText('POINT(108.895903 34.170034)'), '曹家堡公租房小区', '15', '1871737372', '1', '2018-10-11 00:00:00', '123213', '4', '2018-10-11 18:02:58');
+INSERT INTO `reservation` VALUES ('05a2185745d24b518f9680fa006c8a59', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '付村花园东区附近', '0米', '549米', GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), '付村花园', GeomFromText('POINT(108.89623 34.17348)'), '金地·西沣公元', '12', '123213', '1', '2018-10-11 00:00:00', '5345345', '4', '2018-10-11 18:05:45');
+INSERT INTO `reservation` VALUES ('eba4c77011c54483acaec0a2440d9d16', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '付村花园东区附近', '0米', '549米', GeomFromText('POINT(108.869217 34.18243)'), GeomFromText('POINT(108.86331 34.18171)'), '付村花园', GeomFromText('POINT(108.89623 34.17348)'), '金地·西沣公元', '12', '123213', '1', '2018-10-11 00:00:00', '5345345', '0', '2018-10-11 11:28:52');
+INSERT INTO `reservation` VALUES ('6e862f02582c4d549533ae500f2bb48b', '3a3ee771815e4718997a0bfbc42b5830', 'fbaf12944a5c456ab86b45079fee2f52', GeomFromText('POINT(108.89623 34.17348)'), '西安神州数码科技园附近', '384米', '6米', GeomFromText('POINT(108.867477 34.194126)'), GeomFromText('POINT(108.86741 34.19413)'), '神州数码西安科技园', GeomFromText('POINT(108.895903 34.170034)'), '曹家堡公租房小区', '15', '18717155444', '1', '2018-10-11 00:00:00', 'null', '0', '2018-10-11 12:10:04');
 
 -- ----------------------------
 -- Table structure for user

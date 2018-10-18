@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.home.core.service.OrdersService;
+import com.system.core.util.HmacUtil;
 import com.system.core.util.ResponseValue;
 
 /**
@@ -46,8 +47,9 @@ public class OrdersController {
 	public Map<String, Object> orderCount( String user) {
 		try{
 			JSONObject userobj = JSONObject.parseObject(user);
-			if (userobj.getString(ResponseValue.USER_ID)!=null) {
-				System.out.println(" attr is null..");
+			if (HmacUtil.getStringNull(userobj
+					.getString(ResponseValue.USER_ID))) {
+				System.out.println(" orderCount is null..");
 			} else {
 				return ordersService.getOrderCount( userobj.getString(ResponseValue.USER_ID));
 			}
@@ -61,8 +63,9 @@ public class OrdersController {
 	public List<Map<String, Object>> queryOrder( String user,int num) {
 		try{
 			JSONObject userobj = JSONObject.parseObject(user);
-			if (userobj.getString(ResponseValue.USER_ID)!=null) {
-				System.out.println(" attr is null..");
+			if ( HmacUtil.getStringNull(userobj
+					.getString(ResponseValue.USER_ID))) {
+				System.out.println(" queryOrder is null..");
 			} else {
 				if(num==0){//服务订单
 					return ordersService.queryFWOrder( userobj.getString(ResponseValue.USER_ID));
@@ -76,6 +79,69 @@ public class OrdersController {
 		}
 		return null;
 	}
-	
+	@RequestMapping(value = "/queryOrderById", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Map<String, Object>> queryOrderById( String id) {
+		try{
+			if ( HmacUtil.getStringNull(id)) {
+				System.out.println(" queryOrderById is null..");
+			} else {
+				return ordersService.queryOrder( id);
+				
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	@RequestMapping(value = "/priceMin", method = RequestMethod.POST)
+	@ResponseBody
+	public String  priceMin(String modeldata) {
+		try{
+			JSONObject modelobject = JSONObject.parseObject(modeldata);
+			if ( modelobject.isEmpty()) {
+				System.out.println(" priceMin is null..");
+			} else {
+				HmacUtil.sendModel(modelobject);
+				return ResponseValue.IS_SUCCESS;
+			
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
+	@RequestMapping(value = "/updateOrderPrice", method = RequestMethod.POST)
+	@ResponseBody
+	public String  updateOrderPrice(String rid,String price,String remark,String modeldata) {
+		try{
+			JSONObject modelobject = JSONObject.parseObject(modeldata);
+			if ( HmacUtil.getStringNull(price)|| HmacUtil.getStringNull(rid)|| HmacUtil.getStringNull(remark)) {
+				System.out.println(" updateOrderPrice is null..");
+			} else {
+				return ordersService.updateOrderPrice( rid, price,remark,modelobject);
+			
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
+	@RequestMapping(value = "/updateOrderStatus", method = RequestMethod.POST)
+	@ResponseBody
+	public String  updateOrderStatus(String rid,String status,String modeldata) {
+		try{
+			JSONObject modelobject = JSONObject.parseObject(modeldata);
+			if ( HmacUtil.getStringNull(status)|| HmacUtil.getStringNull(rid)) {
+				System.out.println(" updateReservationStatus is null..");
+			} else {
+				return ordersService.updateOrderStatus( rid, status,modelobject);
+			
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
 
 }

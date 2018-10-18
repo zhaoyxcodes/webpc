@@ -30,6 +30,7 @@ public  class  ResponseValue {
 	public static final String IS_ERROR="0";
 	
 	public static final String USER_ID="id";
+	public static final String USER_ISADMIN="isadm";
 	public static final String USER_OPENID="openid";
 	public static final String USER_SESSION_KEY="sessionkey";
 	public static final String USER_NAME="name";

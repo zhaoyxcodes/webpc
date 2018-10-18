@@ -28,8 +28,7 @@ public class User implements Serializable{
 	private String wxid;
 	private String phone;
 	private String img;
-	private String home;
-	private String geom;
+	private String isadmin;
 	public String getId() {
 		return id;
 	}
@@ -60,17 +59,11 @@ public class User implements Serializable{
 	public void setImg(String img) {
 		this.img = img;
 	}
-	public String getHome() {
-		return home;
+	public String getIsadmin() {
+		return isadmin;
 	}
-	public void setHome(String home) {
-		this.home = home;
-	}
-	public String getGeom() {
-		return geom;
-	}
-	public void setGeom(String geom) {
-		this.geom = geom;
+	public void setIsadmin(String isadmin) {
+		this.isadmin = isadmin;
 	}
 	
 
