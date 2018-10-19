@@ -88,5 +88,30 @@
 	      <property name="dataSource" ref="dataSource" />
 	</bean>
    
+   
+   
+   
+   
+   <bean id="schedulerFactory" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+         <property name="triggers">
+             <list>
+                  <ref bean="cronTrigger"/>
+             </list>
+         </property>
+	</bean> 
+	 <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail1"/>
+		 <property name="cronExpression">  
+            <value>0 58 23 * * ? *</value>  
+        </property>
+	</bean> 
+	
+  	<bean id="jobDetail1" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" >
+            <value>com.system.core.util.TaskUpdate</value>
+        </property>    
+        <property name="durability" value="true" />    
+        <property name="requestsRecovery" value="true" />        
+    </bean>
 
 </beans>

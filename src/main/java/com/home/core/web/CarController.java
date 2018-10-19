@@ -134,16 +134,15 @@ public class CarController {
 	@ResponseBody
 	public String  insertReservation(String date,String dataval,String user,String modeldata) {
 		try{
-			JSONArray date_list = JSONArray.parseArray(date);
 			JSONObject dataobj = JSONObject.parseObject(dataval);
 			JSONObject userobj = JSONObject.parseObject(user);
 			JSONObject modelobject = JSONObject.parseObject(modeldata);
 			//todo:校验dataobj
-			if (  date_list.size() < 3|| HmacUtil.getStringNull(userobj
+			if (   HmacUtil.getStringNull(userobj
 					.getString(ResponseValue.USER_ID))) {
 				System.out.println(" insertReservation is null..");
 			} else {
-				return carService.insertReservation(dataobj,date_list,userobj.getString(ResponseValue.USER_ID),modelobject);
+				return carService.insertReservation(dataobj,date,userobj.getString(ResponseValue.USER_ID),modelobject);
 			
 			}
 		}catch(Exception e){

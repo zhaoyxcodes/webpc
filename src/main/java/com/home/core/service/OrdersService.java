@@ -57,7 +57,7 @@ public class OrdersService {
 	//查询服务订单信息
 	public List<Map<String, Object>> queryFWOrder(String userid){
 		String queryc="select c.*,u.username,a.everyday as carday,DATE_FORMAT(c.startdate,'%Y-%m-%d %H:%i')  as sdate,AsText(c.gatherstart) as fgatherstart,AsText(c.downend) as fdownend,AsText(c.end) as fend,AsText(c.start) as fstart" +
-				",AsText(a.end_geom) as fcarend,a.start_title,a.end_title  from car a,line b,reservation c,user u where  c.user_id=u.id and a.id=b.car_id and b.id=c.line_id and a.user_id='"+userid+"' order by a.createdate desc";
+				",AsText(a.end_geom) as fcarend,a.start_title,a.end_title  from car a,line b,reservation c,user u where  c.user_id=u.id and a.id=b.car_id and b.id=c.line_id and a.user_id='"+userid+"' order by c.createdate  desc";
 		return jdbcDao.queryForList(queryc);
 	}
 	//查询预订订单信息
