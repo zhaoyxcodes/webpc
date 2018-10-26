@@ -86,10 +86,12 @@ public class HomeController {
 	
 	@RequestMapping(value = "/insertCertification", method = RequestMethod.POST)
 	@ResponseBody
-	public String insertCertification(String id,String userid,String name,String peoplenum,String phone,String carnum,String carlicense,String driverlicense)  {
+	public String insertCertification(String carbrand,String carcolor,String id,String userid,String name,String peoplenum,String phone,String carnum,String carlicense,String driverlicense)  {
 		try {
 			if (HmacUtil.getStringNull(userid)
 					|| HmacUtil.getStringNull(name)
+					|| HmacUtil.getStringNull(carbrand)
+					|| HmacUtil.getStringNull(carcolor)
 					|| HmacUtil.getStringNull(peoplenum)
 					|| HmacUtil.getStringNull(phone)
 					|| HmacUtil.getStringNull(carnum)
@@ -97,7 +99,7 @@ public class HomeController {
 					|| HmacUtil.getStringNull(driverlicense)) {
 				System.out.println(" insertCertification is null..");
 			} else {
-				return homeService.insertCertification(id,userid,name,peoplenum,phone,carnum,carlicense,driverlicense);
+				return homeService.insertCertification(id,userid,name,peoplenum,phone,carnum,carlicense,driverlicense, carbrand, carcolor);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

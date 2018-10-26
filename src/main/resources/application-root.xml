@@ -96,6 +96,7 @@
          <property name="triggers">
              <list>
                   <ref bean="cronTrigger"/>
+                  <ref bean="cronTrigger2"/>
              </list>
          </property>
 	</bean> 
@@ -109,6 +110,23 @@
   	<bean id="jobDetail1" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
         <property name="jobClass" >
             <value>com.system.core.util.TaskUpdate</value>
+        </property>    
+        <property name="durability" value="true" />    
+        <property name="requestsRecovery" value="true" />        
+    </bean>
+    
+    
+    
+    <bean id="cronTrigger2" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail2"/>
+		 <property name="cronExpression">  
+            <value>0 0/1 * * * ? *</value>  
+        </property>
+	</bean> 
+	
+  	<bean id="jobDetail2" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" >
+            <value>com.system.core.util.SendTask</value>
         </property>    
         <property name="durability" value="true" />    
         <property name="requestsRecovery" value="true" />        

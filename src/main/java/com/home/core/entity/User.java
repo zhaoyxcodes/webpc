@@ -29,6 +29,22 @@ public class User implements Serializable{
 	private String phone;
 	private String img;
 	private String isadmin;
+	
+	private String carstatus;
+	private String carphone;
+	
+	public String getCarstatus() {
+		return carstatus;
+	}
+	public void setCarstatus(String carstatus) {
+		this.carstatus = carstatus;
+	}
+	public String getCarphone() {
+		return carphone;
+	}
+	public void setCarphone(String carphone) {
+		this.carphone = carphone;
+	}
 	public String getId() {
 		return id;
 	}

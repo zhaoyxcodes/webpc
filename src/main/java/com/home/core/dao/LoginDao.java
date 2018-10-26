@@ -37,7 +37,7 @@ public class LoginDao {
 	private JdbcDao jdbcDao;
 	public User getUserByOpenId(String openId){
 		
-		List userlist= jdbcDao.queryForObjectList("select * from user where wxid=?",new String[]{openId},User.class);
+		List userlist= jdbcDao.queryForObjectList("select a.*,b.status  as carstatus,b.phone as carphone from user a LEFT JOIN certification b on a.id=b.user_id and b.status=1 where  a.wxid=?",new String[]{openId},User.class);
 		if(userlist!=null&&userlist.size()>0){
 			return (User)userlist.get(0);
 		}

@@ -82,19 +82,20 @@ public class HomeService {
 		return ResponseValue.IS_ERROR;
 	}
 	@Transactional(readOnly = false)
-	public String insertCertification(String id,String user_id,String name,String peoplenum,String phone,String carnum,String carlicense,String driverlicense){
+	public String insertCertification(String id,String user_id,String name,String peoplenum,String phone,String carnum,
+			String carlicense,String driverlicense,String carbrand,String carcolor){
 		String insql="";
 		String[] plist=null;
 		System.out.println("insert id:"+id);
 		if(HmacUtil.getStringNull(id)){
 			id = HmacUtil.getUUID();
-			plist=new String[]{id,user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,"0"};
-			 insql="insert into certification(id,user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,status)values(?,?,?,?,?,?,?,?,?)";
+			plist=new String[]{id,user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,"0",carbrand,carcolor};
+			 insql="insert into certification(id,user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,status,carbrand,carcolor)values(?,?,?,?,?,?,?,?,?,?,?)";
 		}else{
 			jdbcDao.update("update documentfile set status=0 where id in(select carlicense from certification where id='"+id+"')");
 			jdbcDao.update("update documentfile set status=0 where id in(select driverlicense from certification where id='"+id+"')");
-			plist=new String[]{user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,id};
-			insql="update certification set user_id=?,name=?,peoplenum=?,phone=?,carnum=?,carlicense=?,driverlicense=?,status=0 where id=?";
+			plist=new String[]{user_id,name,peoplenum,phone,carnum,carlicense,driverlicense,carbrand,carcolor,id};
+			insql="update certification set user_id=?,name=?,peoplenum=?,phone=?,carnum=?,carlicense=?,driverlicense=?,status=0,carbrand=?,carcolor=? where id=?";
 		}
 		jdbcDao.update("update documentfile set status=1 where id='"+carlicense+"'");
 		jdbcDao.update("update documentfile set status=1 where id='"+driverlicense+"'");

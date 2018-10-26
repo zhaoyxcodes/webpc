@@ -10,7 +10,6 @@
 package com.home.core.service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.home.core.dao.JdbcDao;
 import com.system.core.util.HmacUtil;
@@ -72,6 +70,24 @@ public class OrdersService {
 				",AsText(a.end_geom) as fcarend,a.start_title,a.end_title from car a,line b,reservation c,user u where  a.user_id=u.id and a.id=b.car_id and b.id=c.line_id and c.id='"+rid+"' order by  c.createdate desc";
 		return jdbcDao.queryForList(queryc);
 	}
+	
+	public Map<String, Object> queryIsMsg(String userid){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar curr = Calendar.getInstance();
+		String dqdate=sdf.format(curr.getTime());
+		String queryc="select c.*,u.username,a.everyday as carday,DATE_FORMAT(c.startdate,'%Y-%m-%d %H:%i') as sdate,AsText(c.gatherstart) as fgatherstart,AsText(c.downend) as fdownend,AsText(c.end) as fend,AsText(c.start) as fstart" +
+				",AsText(a.end_geom) as fcarend,a.start_title,a.end_title from car a,line b,reservation c,user u where  a.user_id=u.id and a.id=b.car_id and b.id=c.line_id and c.user_id='"+userid+"' and c.status in(1) and c.ismsg=1 and  DATE_FORMAT(startdate,'%Y-%m-%d')='"+dqdate+"' order by  c.startdate desc";
+		List<Map<String, Object>> list= jdbcDao.queryForList(queryc);
+		if(list!=null&&list.size()>0){
+			return list.get(0);
+		}
+		return null;
+	}
+	public List<Map<String, Object>> queryReservationByLine(String lineid){
+		String queryc="select u.username,u.img,c.`status` from reservation c,user u where c.user_id=u.id  and c.`start` in(0,1,2) and c.line_id='"+lineid+"' order by createdate desc";
+		return jdbcDao.queryForList(queryc);
+	}
+
 	@Transactional(readOnly = false)
 	public String updateOrderStatus(String rid,String status,JSONObject modelobject){
 		String updatesql="update reservation set status=? where id=?";

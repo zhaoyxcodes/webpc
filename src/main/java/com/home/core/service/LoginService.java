@@ -98,7 +98,9 @@ public class LoginService {
 					+ "\":\"" + user.getImg() + "\",\"" + ResponseValue.USER_OPENID
 					+ "\":\"" + openId + "\",\"" + ResponseValue.USER_ID
 					+ "\":\"" + user.getId() + "\",\"" + ResponseValue.USER_ISADMIN
-					+ "\":\"" + user.getIsadmin() + "\"}";
+					+ "\":\"" + user.getIsadmin() + "\",\"" + ResponseValue.USER_CAR_CARSTATUS
+					+ "\":\"" + user.getCarstatus() + "\",\"" + ResponseValue.USER_CAR_PHONE
+					+ "\":\"" + user.getCarphone() + "\"}";
 
 		}
 		return ResponseValue.IS_ERROR;

@@ -41,7 +41,22 @@ public class OrdersController {
 	@Autowired
 	private OrdersService ordersService;
 
-	
+	@RequestMapping(value = "/queryIsMsg", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> queryIsMsg( String user) {
+		try{
+			JSONObject userobj = JSONObject.parseObject(user);
+			if (HmacUtil.getStringNull(userobj
+					.getString(ResponseValue.USER_ID))) {
+				System.out.println(" orderCount is null..");
+			} else {
+				return ordersService.queryIsMsg( userobj.getString(ResponseValue.USER_ID));
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
 	@RequestMapping(value = "/orderCount", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> orderCount( String user) {
@@ -73,6 +88,20 @@ public class OrdersController {
 					return ordersService.queryCXOrder( userobj.getString(ResponseValue.USER_ID));
 				}
 				
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	@RequestMapping(value = "/queryReservationByLine", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Map<String, Object>> queryReservationByLine( String lineid) {
+		try{
+			if ( HmacUtil.getStringNull(lineid)) {
+				System.out.println(" queryReservationByLine is null..");
+			} else {
+				return ordersService.queryReservationByLine( lineid);
 			}
 		}catch(Exception e){
 			e.printStackTrace();

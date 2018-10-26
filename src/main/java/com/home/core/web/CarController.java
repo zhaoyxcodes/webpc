@@ -60,11 +60,8 @@ public class CarController {
 							.getString(ResponseValue.USER_ID))) {
 				System.out.println(" insertCar is null..");
 			} else {
-
-				carService.insertCar(markers_list, line_list, peplenum, phone,
+				return carService.insertCar(markers_list, line_list, peplenum, phone,
 						date_list, userobj);
-				return ResponseValue.IS_SUCCESS;
-
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -73,15 +70,17 @@ public class CarController {
 	}
 	@RequestMapping(value = "/seachCar", method = RequestMethod.POST)
 	@ResponseBody
-	public List<Map<String, Object>> seachCar(String markers,String peplenum, String date, String user) {
+	public List<Map<String, Object>> seachCar(String markers,String peplenum, String date, String user,String start_d,String end_d,String starttw) {
 		try{
 			JSONArray markers_list = JSONArray.parseArray(markers);
 			JSONArray date_list = JSONArray.parseArray(date);
+			JSONObject userobj = JSONObject.parseObject(user);
 			if ( markers_list.size() < 2
-					|| date_list.size() < 3) {
+					|| date_list.size() < 3|| HmacUtil.getStringNull(userobj
+							.getString(ResponseValue.USER_ID))) {
 				System.out.println(" seachCar is null..");
 			} else {
-				return carService.seachCar( markers_list, date_list, peplenum);
+				return carService.seachCar( markers_list, date_list, peplenum,userobj, start_d, end_d,starttw);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
