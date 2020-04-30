@@ -45,6 +45,7 @@ public class CarService {
 	private static int start_distance = 1000;// 周边1公里
 	private static int end_distance = 1000;// 周边1公里
 	private static int timeWeight = 5;// 左右5分钟出发时间
+	
 
 	@Transactional(readOnly = false)
 	public String insertReservation(JSONObject object, String datedf,
@@ -153,7 +154,7 @@ public class CarService {
 	public List<Map<String, Object>> seachLineByUser(String userid) {
 		return jdbcDao
 				.queryForList(
-						"select a.*,b.start_title,b.end_title,b.peplenum,b.everyday,DATE_FORMAT(b.startdate,'%Y-%m-%d %H:%i') as sdate from line a,car b where a.car_id=b.id  and b.user_id=? order by a.status desc, b.createdate desc",
+						"select a.*,b.start_title,b.end_title,b.peplenum,b.everyday,DATE_FORMAT(b.startdate,'%Y-%m-%d %H:%i') as sdate from line a,car b where a.car_id=b.id  and b.user_id=? and b.status=1 and a.status=1 order by a.status desc, b.createdate desc",
 						new String[] { userid });
 	}
 
@@ -164,10 +165,117 @@ public class CarService {
 								+ ",u.img,u.username,cc.phone as cz_phone,cc.carnum as cz_carnum,cc.carbrand as cz_carbrand,cc.carcolor as cz_carcolor from user u,line a,car b,certification cc where a.car_id=b.id and cc.user_id=u.id and cc.status=1 and b.user_id=u.id and   a.id=? order by b.createdate desc",
 						new String[] { lineid });
 	}
+	public JSONObject seachCarCount(JSONArray markers_list,
+			JSONArray date_list, String peplenum, JSONObject userobj,
+			String start_d, String end_d, String starttw,int pageSize){
 
+		System.out.println(end_distance);
+		if (start_d != null && start_d.length() > 0) {
+			start_distance = Integer.parseInt(start_d);// 周边1公里
+		}
+		if (end_d != null && end_d.length() > 0) {
+			end_distance = Integer.parseInt(end_d);// 周边1公里
+		}
+		if (starttw != null && starttw.length() > 0) {
+			timeWeight = Integer.parseInt(starttw);
+		}
+		JSONObject startmark = markers_list.getJSONObject(0);
+		JSONObject endmark = markers_list.getJSONObject(1);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar curr = Calendar.getInstance();
+		int everyday = 0;
+		int dateobj = date_list.getInteger(0);
+		int hourobj = date_list.getInteger(1);
+		int timeobj = date_list.getInteger(2);
+		if (dateobj == 0) {// 每天
+			everyday = 1;// 没用
+		} else {
+			int adddate = dateobj - 1;
+			curr.add(Calendar.DAY_OF_MONTH, adddate);
+		}
+		curr.set(Calendar.HOUR_OF_DAY, hourobj);
+		curr.set(Calendar.MINUTE, timeobj * 5);
+		// 用户选择的时间 curr
+
+		int min = timeobj * 5;
+		int starttime = min - timeWeight;
+		int endtime = min + timeWeight;
+		// 0和60时需要加减hh
+		if (starttime < 0) {
+			starttime = 0;
+		}
+		if (endtime > 59) {
+			endtime = 59;
+		}
+		String strstarttime = starttime + "";
+		String strendtime = endtime + "";
+		if (starttime < 10) {
+			strstarttime = "0" + starttime;
+		}
+		if (endtime < 10) {
+			strendtime = "0" + endtime;
+		}
+		String querysql = "SELECT count(*) as count FROM "+
+
+				"(SELECT min(startdistance) AS minstart,min(enddistance) AS minend,allin.* FROM (SELECT a.*,  enddistance,c.geom,b.id AS lineid ,b.distance,b.duration,b.name as linename,b.s_index FROM"
+				+ "(SELECT *, ST_Distance_Sphere (Point ("
+				+ startmark.getString("longitude")
+				+ ","
+				+ startmark.getString("latitude")
+				+ "),start_geom) AS startdistance FROM car "
+				+ "WHERE STATUS = 1 AND  DATE_FORMAT(startdate,'%H:%i')>='"
+				+ hourobj
+				+ ":"
+				+ strstarttime
+				+ "' AND DATE_FORMAT(startdate,'%H:%i')<='"
+				+ hourobj
+				+ ":"
+				+ strendtime + "'  ";
+		if (everyday == 1) {
+			querysql += "AND (DATE_FORMAT(startdate,'%Y-%m-%d')>='"
+					+ sdf.format(curr.getTime()) + "' OR EVERYDAY=1)";
+		} else {
+			querysql += "AND (DATE_FORMAT(startdate,'%Y-%m-%d')='"
+					+ sdf.format(curr.getTime()) + "' OR EVERYDAY=1)";
+		}
+		querysql += ") a,line b,(select a.* from (select * from (select ST_Distance_Sphere (Point ("
+				+ endmark.getString("longitude")
+				+ ","
+				+ endmark.getString("latitude")
+				+ "),a.geom) AS enddistance,a.* from point a where a.status=1) a where a.enddistance<"
+				+ end_distance
+				+ " ) a"
+				+ " ,(select min(enddistance) as enddistance, line_id from(select ST_Distance_Sphere (Point ("
+				+ endmark.getString("longitude")
+				+ ","
+				+ endmark.getString("latitude")
+				+ "),geom) AS enddistance,point.line_id from point )a "
+				+ " where enddistance<"
+				+ end_distance
+				+ "  group by line_id )b where a.enddistance=b.enddistance and a.line_id=b.line_id) c  "
+				+ "WHERE b.id not in(" +
+				"select c.id from line c where c.car_id in(select car_id from reservation a where DATE_FORMAT(startdate,'%Y-%m-%d')='"+sdf.format(curr.getTime())+"' "+
+" and `status` in(0,1)) and c.id not in(select line_id from reservation a where DATE_FORMAT(startdate,'%Y-%m-%d')='"+sdf.format(curr.getTime())+"' "+
+" and `status` in(0,1))"+//过滤没有预定的其他线路id
+				") and  a.startdistance < "
+				+ start_distance
+				+ " AND a.id = b.car_id AND c.line_id = b.id AND b.`status` = 1  ) allin "
+				+ " GROUP BY lineid ) aa,`user` u,certification cc where aa.user_id=u.id and cc.user_id=u.id and cc.status=1 and u.id not in('"
+				+ userobj.getString(ResponseValue.USER_ID)
+				+ "')  ";
+		System.out.println(querysql);
+		List<Map<String, Object>> list=jdbcDao.queryForList(querysql);
+		int count=Integer.parseInt(list.get(0).get("count".toUpperCase()).toString());
+		int pagecount = (int)Math.ceil(1.0*count/pageSize);
+		JSONObject object=new JSONObject();  
+		object.put("count",count); 
+		object.put("pagecount",pagecount); 
+		return object;
+		
+	}
 	public List<Map<String, Object>> seachCar(JSONArray markers_list,
 			JSONArray date_list, String peplenum, JSONObject userobj,
-			String start_d, String end_d, String starttw) {
+			String start_d, String end_d, String starttw,int pageNo,int pageSize) {
 		System.out.println(end_distance);
 		if (start_d != null && start_d.length() > 0) {
 			start_distance = Integer.parseInt(start_d);// 周边1公里
@@ -266,7 +374,7 @@ public class CarService {
 				+ " AND a.id = b.car_id AND c.line_id = b.id AND b.`status` = 1  ) allin "
 				+ " GROUP BY lineid ) aa,`user` u,certification cc where aa.user_id=u.id and cc.user_id=u.id and cc.status=1 and u.id not in('"
 				+ userobj.getString(ResponseValue.USER_ID)
-				+ "') ORDER BY minstart ASC,minend ASC,duration asc,s_index asc ";
+				+ "') ORDER BY minstart ASC,minend ASC,duration asc,s_index asc  LIMIT "+((pageNo-1)*pageSize)+","+pageSize;
 		System.out.println(querysql);
 		return jdbcDao.queryForList(querysql);
 	}
@@ -333,7 +441,7 @@ public class CarService {
 					+ user.getString(ResponseValue.USER_ID) + "' ";
 			if (dateobj == 0) {
 				queryv = "select   count(*) as count from car where  startdate>=STR_TO_DATE('"
-						+ sdf1.format(time)
+						+ sdf1.format(curr.getTime())
 						+ "','%Y-%m-%d')  and DATE_FORMAT(startdate,'%H:%i')>='"
 						+ minH
 						+ "' and   DATE_FORMAT(startdate,'%H')<='"

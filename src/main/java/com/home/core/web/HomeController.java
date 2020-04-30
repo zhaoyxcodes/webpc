@@ -12,6 +12,8 @@ package com.home.core.web;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -77,11 +79,22 @@ public class HomeController {
 		String url=request.getParameter("filename");
 		System.out.println(url);
 		FileInputStream inputStream = new FileInputStream(new File(HmacUtil.path+"//"+url) );
-		
-        RenderedImage image = ImageIO.read(inputStream);
-        response.setContentType("image/jpeg");//设置后网页中才能显示出图片的后缀
-        ImageIO.write(image, "jpg", response.getOutputStream());
-        inputStream.close();
+		  int i=inputStream.available(); 
+
+	        byte data[]=new byte[i];        //读数据
+
+	        inputStream.read(data);         //得到向客户端输出二进制数据的对象
+
+	        OutputStream toClient=response.getOutputStream();         //输出数据 
+
+	        toClient.write(data);  
+
+	        toClient.flush();  
+
+	        toClient.close(); 
+//        RenderedImage image = ImageIO.read(inputStream);
+        response.setContentType("image/gif");//设置后网页中才能显示出图片的后缀
+//        ImageIO.write(image, "jpg", response.getOutputStream());
 	}
 	
 	@RequestMapping(value = "/insertCertification", method = RequestMethod.POST)
@@ -159,6 +172,22 @@ public class HomeController {
 		}
 		return null;
 	}
+	@RequestMapping(value = "/updateuser", method = RequestMethod.POST)
+	@ResponseBody
+	public 	String  updateuser(String username,String phone,String imgid,String userid)  {
+		try {
+			if (HmacUtil.getStringNull(username)||
+					HmacUtil.getStringNull(phone)||HmacUtil.getStringNull(userid)) {
+				System.out.println(" updateuser is null..");
+			} else {
+				return homeService.updateUser( username, phone, imgid, userid);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
+
 	
 
 }

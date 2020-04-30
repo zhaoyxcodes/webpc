@@ -40,6 +40,30 @@ public class HomeService {
 	@Autowired
 	private JdbcDao jdbcDao;
 	
+	@Transactional(readOnly = false)
+	public String updateUser(String username,String phone,String imgid,String userid){
+		if(imgid!=null&&imgid.length()>0){
+			List<Map<String, Object>> list=jdbcDao.queryForList("select * from documentfile where id=?",new String[]{imgid});
+			if(list==null||list.size()<=0){
+				return ResponseValue.IS_ERROR;
+			}
+			String path=list.get(0).get("pathfile".toUpperCase()).toString();
+			jdbcDao.update("update documentfile set status=0 where id=? ",new String[]{imgid});
+			String insql="update user set username=?,phone=?,imgid=?,img=? where id=?";
+			String [] li=new String[]{username, phone,imgid,path, userid};
+			int num= jdbcDao.update(insql,li);
+			if(num>0){
+				return path;
+			}
+		}
+		String [] li=new String[]{username, phone, imgid, userid};
+		String insql="update user set username=?,phone=? where id=?";
+		int num= jdbcDao.update(insql,li);
+		if(num>0){
+			return ResponseValue.IS_SUCCESS;
+		}
+		return ResponseValue.IS_ERROR;
+	}
 	public Map<String, Object> queryCertificationByUser(String userid){
 		String querysql="select t.*,a.pathfile as driverpath,b.pathfile as carfile from certification  t,documentfile a,documentfile b where" +
 				" t.driverlicense=a.id and b.id=t.carlicense and t.user_id='"+userid+"' and a.`status`=1 and b.`status`=1";

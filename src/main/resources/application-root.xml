@@ -103,7 +103,7 @@
 	 <bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="jobDetail1"/>
 		 <property name="cronExpression">  
-            <value>0 58 23 * * ? *</value>  
+            <value>0 00 01 * * ? *</value>  
         </property>
 	</bean> 
 	

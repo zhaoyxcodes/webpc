@@ -57,6 +57,20 @@ public class OrdersController {
 		}
 		return null;
 	}
+	@RequestMapping(value = "/updateIsMsg", method = RequestMethod.POST)
+	@ResponseBody
+	public String updateIsMsg( String cid) {
+		try{
+			if (HmacUtil.getStringNull(cid)) {
+				System.out.println(" updateIsMsg is null..");
+			} else {
+				return ordersService.updateIsMsg(cid);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
 	@RequestMapping(value = "/orderCount", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> orderCount( String user) {
@@ -165,6 +179,27 @@ public class OrdersController {
 				System.out.println(" updateReservationStatus is null..");
 			} else {
 				return ordersService.updateOrderStatus( rid, status,modelobject);
+			
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return ResponseValue.IS_ERROR;
+	}
+	@RequestMapping(value = "/dellineororder", method = RequestMethod.POST)
+	@ResponseBody
+	public String  delLineOrOrder(String id,String status) {
+		try{
+			if ( HmacUtil.getStringNull(status)|| HmacUtil.getStringNull(id)) {
+				System.out.println(" updateReservationStatus is null..");
+			} else {
+				String num="";
+				if("0".equals(status)){//删除CAR
+					num= ordersService.deleteLine(id);
+				}else{//删除Order
+					num= ordersService.deleteOrder(id);
+				}
+				return num;
 			
 			}
 		}catch(Exception e){

@@ -70,7 +70,7 @@ public class CarController {
 	}
 	@RequestMapping(value = "/seachCar", method = RequestMethod.POST)
 	@ResponseBody
-	public List<Map<String, Object>> seachCar(String markers,String peplenum, String date, String user,String start_d,String end_d,String starttw) {
+	public String seachCar(String markers,String peplenum, String date, String user,String start_d,String end_d,String starttw,int pageNo,int pageSize) {
 		try{
 			JSONArray markers_list = JSONArray.parseArray(markers);
 			JSONArray date_list = JSONArray.parseArray(date);
@@ -80,12 +80,19 @@ public class CarController {
 							.getString(ResponseValue.USER_ID))) {
 				System.out.println(" seachCar is null..");
 			} else {
-				return carService.seachCar( markers_list, date_list, peplenum,userobj, start_d, end_d,starttw);
+				JSONObject jsonobj=carService.seachCarCount( markers_list, date_list, peplenum,userobj, start_d, end_d,starttw,pageSize);
+				List<Map<String, Object>>  list= carService.seachCar( markers_list, date_list, peplenum,userobj, start_d, end_d,starttw,pageNo,pageSize);
+				if(list!=null&&list.size()>0){
+					JSONArray ja=new JSONArray();
+					ja.addAll(list);
+					jsonobj.put("list", ja);
+					return jsonobj.toJSONString();
+				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return null;
+		return ResponseValue.IS_ERROR;
 	}
 	@RequestMapping(value = "/getPoint", method = RequestMethod.POST)
 	@ResponseBody

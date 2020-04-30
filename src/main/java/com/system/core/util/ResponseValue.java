@@ -19,6 +19,7 @@ package com.system.core.util;
  * @see 	 
  */
 public  class  ResponseValue {
+	
 	public static final String WECHAT_LOGIN_SIGNATURE_ERROR="登录失败";
 	
 	public static final String WECHAT_LOGIN_USER_ERROR="";

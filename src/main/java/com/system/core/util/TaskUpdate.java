@@ -9,6 +9,8 @@
 
 package com.system.core.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +41,12 @@ public class TaskUpdate  extends QuartzJobBean {
 	private JdbcDao jdbcDao;
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	Calendar curr = Calendar.getInstance();
+    	String dqdate=sdf.format(curr.getTime());
     	jdbcDao=(JdbcDao)ContextLoader.getCurrentWebApplicationContext().getBean("jdbcDao");
-    	String querysql="update  car set startdate=date_add(startdate,interval 1 day) where status=1  and everyday=1";
+    	String querysql="update  car set startdate=CONCAT("+dqdate+",' ',DATE_FORMAT(startdate,'%H:%i')) where status=1  and everyday=1";
+    	//date_add(startdate,interval 1 day)
     	jdbcDao.update(querysql);
     	
     }
